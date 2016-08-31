@@ -12,13 +12,13 @@ if __name__ == "__main__":
     parserObj = argparse.ArgumentParser(description="A simple Python Reddit scraper")
 
     # Configuring argument parser
-    parser.add_argument("--subreddit", action="store", required=True, dest="subredditName", type=str, help="The name of the subreddit to scrape (default=all)")
-    parser.add_argument("--resolve-imgur-links", action="store_true", dest="imgurResolve", help="Choose whether to grab direct images from Imgur")
-    parser.add_argument("--output-file", action="store", default="redditurls.txt", dest="outputFilename", type=str, help="Configure the file path of the program output")
-    parser.add_argument("--filter-by", action="store", default="hot", dest="filter", type=str, help="Configure subreddit sort type (default=hot)")
-    parser.add_argument("--limit", action="store", default=100, dest="limit", type=int, help="Number of posts to scrape")
+    parserObj.add_argument("--subreddit", action="store", required=True, dest="subredditName", type=str, help="The name of the subreddit to scrape (default=all)")
+    parserObj.add_argument("--resolve-imgur-links", action="store_true", dest="imgurResolve", help="Choose whether to grab direct images from Imgur")
+    parserObj.add_argument("--output-file", action="store", default="redditurls.txt", dest="outputFilename", type=str, help="Configure the file path of the program output")
+    parserObj.add_argument("--filter-by", action="store", default="hot", dest="filter", type=str, help="Configure subreddit sort type (default=hot)")
+    parserObj.add_argument("--limit", action="store", default=100, dest="limit", type=int, help="Number of posts to scrape")
 
-    arguments = parser.parse_args(sys.argv[1:])
+    arguments = parserObj.parse_args(sys.argv[1:])
 
     # setting up PRAW API
     redditAPIAgent = praw.Reddit(user_agent="Simple Reddit Scraper v1.0")
@@ -26,6 +26,7 @@ if __name__ == "__main__":
 
     if arguments.limit > 0:
         outputFile = open(arguments.outputFilename, 'w')
+        
         if arguments.filter == "hot":
             submissions = subredditObject.get_hot(limit=arguments.limit)
         elif arguments.filter == "top":
@@ -37,9 +38,12 @@ if __name__ == "__main__":
         else:
             print("Invalid subreddit sort filter")
             os.exit()
-
+        
         for post in submissions:
-            if 
+            outputFile.write(post.url + "\n")
+
+        print("Success")
+        outputFile.close()
     else:
         print("Limit must be over 0")
         os.exit()
