@@ -3,11 +3,18 @@
 import re
 import requests
 
+def cleanURL(imgurURL):
+    # removes unwanted trailing characters from the input URL
+    while imgurURL[-1] == "/":
+        imgurURL = imgurURL[0:-2]
+
+    return imgurURL
+
 def extractImageURL(imgurURL):
-    if re.match(".*imgur\.com\/[a-zA-Z]+", imgurURL) != False:
+    if re.match(".*imgur\.com\/[a-zA-Z]+/?", imgurURL) != False:
         # make a get request at imgur.com/xxxx.jpg
         # read Content-Type from http headers to determine file type
-        getRequest = requests.get(imgurURL + ".jpg")
+        getRequest = requests.get(cleanURL(imgurURL) + ".jpg")
 
         if getRequest.status_code == 200:
             # webpage exists
@@ -20,7 +27,10 @@ def extractImageURL(imgurURL):
                 return imgurURL + ".png"
             elif responseHeader == "image/gif":
                 return imgurURL + ".gif"
-	
+            else:
+                # in case of unknown format
+                return False
+
         else:
             # return False for following reasons
             # horrible errors
