@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import os
 import imgur
 import praw
 
@@ -27,8 +28,18 @@ if __name__ == "__main__":
         outputFile = open(arguments.outputFilename, 'w')
         if arguments.filter == "hot":
             submissions = subredditObject.get_hot(limit=arguments.limit)
-            
+        elif arguments.filter == "top":
+            submissions = subredditObject.get_top_from_all(limit=arguments.limit)
+        elif arguments.filter == "controversial":
+            submissions = subredditObject.get_controversial(limit=arguments.limit)
+        elif arguments.filter == "rising":
+            submissions = subredditObject.get_rising(limit=arguments.limit)
         else:
             print("Invalid subreddit sort filter")
+            os.exit()
+
+        for post in submissions:
+            if 
     else:
         print("Limit must be over 0")
+        os.exit()
