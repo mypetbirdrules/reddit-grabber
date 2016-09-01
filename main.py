@@ -12,11 +12,11 @@ if __name__ == "__main__":
     parserObj = argparse.ArgumentParser(description="A simple Python Reddit scraper")
 
     # Configuring argument parser
-    parserObj.add_argument("--subreddit", action="store", required=True, dest="subredditName", type=str, help="The name of the subreddit to scrape (default=all)")
-    parserObj.add_argument("--resolve-imgur-links", action="store_true", dest="imgurResolve", help="Choose whether to grab direct images from Imgur")
-    parserObj.add_argument("--output-file", action="store", default="redditurls.txt", dest="outputFilename", type=str, help="Configure the file path of the program output")
-    parserObj.add_argument("--filter-by", action="store", default="hot", dest="filter", type=str, help="Configure subreddit sort type (default=hot)")
-    parserObj.add_argument("--limit", action="store", default=100, dest="limit", type=int, help="Number of posts to scrape")
+    parserObj.add_argument("-r", action="store", required=True, dest="subredditName", type=str, help="the name of the subreddit to scrape (default=all)")
+    parserObj.add_argument("--resolve-imgur-links", action="store_true", dest="imgurResolve", help="extract direct links from Imgur")
+    parserObj.add_argument("-o", action="store", default="redditurls.txt", dest="outputFilename", type=str, help="output file for scraped URLs")
+    parserObj.add_argument("--filter", action="store", default="hot", dest="filter", type=str, help="subreddit content sort method (default=hot)")
+    parserObj.add_argument("-n", action="store", default=100, dest="limit", type=int, help="number of posts to scrape")
 
     arguments = parserObj.parse_args(sys.argv[1:])
 
@@ -40,7 +40,10 @@ if __name__ == "__main__":
             os.exit()
         
         for post in submissions:
-            outputFile.write(post.url + "\n")
+            if arguments.imgurResolve == True:
+                outputFile.write(imgur.extractImageURL(post.url)+"\n")
+            else:
+                outputFile.write(post.url+"\n")
 
         print("Success")
         outputFile.close()

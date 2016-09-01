@@ -29,10 +29,10 @@ def extractImageURL(imgurURL):
                 return imgurURL + ".gif"
             else:
                 # in case of unknown format
-                return False
+                return imgurURL
 
         else:
             # return False for following reasons
             # horrible errors
             # unsupported features (Imgur albums/galleries)
-            return False
+            return imgurURL
