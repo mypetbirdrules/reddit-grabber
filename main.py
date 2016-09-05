@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+# This software is licensed under the GNU General Public License
+
 import argparse
 import sys
-import os
 import imgur
 import praw
+import re
 
 if __name__ == "__main__":
 
@@ -17,6 +19,9 @@ if __name__ == "__main__":
     parserObj.add_argument("-o", action="store", default="redditurls.txt", dest="outputFilename", type=str, help="output file for scraped URLs")
     parserObj.add_argument("--filter", action="store", default="hot", dest="filter", type=str, help="subreddit content sort method (default=hot)")
     parserObj.add_argument("-n", action="store", default=100, dest="limit", type=int, help="number of posts to scrape")
+    parserObj.add_argument("--regex", action="store", default=".*", dest="titleRegex", type=str, help="Filter posts with a regular expression (default=.*)")
+    parserObj.add_argument("--links-only", action="store_true", default=False, dest="removeTextPosts", help="do not scrape text posts (default=False)")
+    parserObj.add_argument("-v", action="store_true", default=False, dest="verboseFlag", help="toggle verbose script output")
 
     arguments = parserObj.parse_args(sys.argv[1:])
 
@@ -37,16 +42,20 @@ if __name__ == "__main__":
             submissions = subredditObject.get_rising(limit=arguments.limit)
         else:
             print("Invalid subreddit sort filter")
-            os.exit()
+            sys.exit(1)
         
+
         for post in submissions:
-            if arguments.imgurResolve == True:
-                outputFile.write(imgur.extractImageURL(post.url)+"\n")
-            else:
-                outputFile.write(post.url+"\n")
+            
+            # if the post is not a link, PRAW will return the link to the text post
+            if re.match(arguments.titleRegex, post.title):
+                if arguments.imgurResolve == True:
+                    outputFile.write(imgur.extractImageURL(post.url)+"\n")
+                else:
+                    outputFile.write(post.url+"\n")
 
         print("Success")
         outputFile.close()
     else:
         print("Limit must be over 0")
-        os.exit()
+        sys.exit(1)
