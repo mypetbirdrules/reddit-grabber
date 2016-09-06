@@ -3,6 +3,12 @@
 import re
 import requests
 
+def galleryToImage(galleryURL):
+    if re.match(".*imgur\.com\/gallery\/[a-zA-Z]+/?", galleryURL) != False:
+        return galleryURL.replace("/gallery/", "/")
+    else:
+        return galleryURL
+
 def cleanURL(imgurURL):
     # removes unwanted trailing characters from the input URL
     while imgurURL[-1] == "/":
@@ -11,6 +17,9 @@ def cleanURL(imgurURL):
     return imgurURL
 
 def extractImageURL(imgurURL):
+
+    imgurURL = galleryToImage(imgurURL)
+
     if re.match(".*imgur\.com\/[a-zA-Z]+/?", imgurURL) != False:
         # make a get request at imgur.com/xxxx.jpg
         # read Content-Type from http headers to determine file type
@@ -32,7 +41,11 @@ def extractImageURL(imgurURL):
                 return imgurURL
 
         else:
-            # return False for following reasons
+            # return original for following reasons
             # horrible errors
             # unsupported features (Imgur albums/galleries)
             return imgurURL
+
+    else:
+
+        return imgurURL

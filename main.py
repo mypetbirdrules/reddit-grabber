@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
         for post in submissions:
             # if the post is not a link, PRAW will return the link to the text post
-            if re.match(arguments.titleRegex, post.title):
+            if ((re.match(arguments.titleRegex, post.title) != False) and (re.match(arguments.linkRegex, post.url) != False)):
                 # increment grabCount for every correct regex title match
                 grabCount += 1
 
