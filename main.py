@@ -5,6 +5,7 @@
 import argparse
 import sys
 import os
+import time
 import imgur
 import praw
 import re
@@ -21,7 +22,6 @@ if __name__ == "__main__":
     parserObj.add_argument("--filter", action="store", default="hot", dest="filter", type=str, help="subreddit content sort method (default=hot)")
     parserObj.add_argument("-n", action="store", default=100, dest="limit", type=int, help="number of posts to scrape")
     parserObj.add_argument("--title-regex", action="store", default=".*", dest="titleRegex", type=str, help="filter posts by title with a regexp (default=.*)")
-    parserObj.add_argument("--link-regex", action="store", default=".*", dest="linkRegex", type=str, help="filter posts by URL with a regexp (default=.*)")
     parserObj.add_argument("-v", action="store_true", default=False, dest="verboseFlag", help="toggle verbose script output")
 
     arguments = parserObj.parse_args(sys.argv[1:])
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         if arguments.filter == "hot":
             submissions = subredditObject.get_hot(limit=arguments.limit)
         elif arguments.filter == "top":
-            submissions = subredditObject.get_top_from_all(limit=arguments.limit)
+            submissions = subredditObject.get_top(limit=arguments.limit)
         elif arguments.filter == "controversial":
             submissions = subredditObject.get_controversial(limit=arguments.limit)
         elif arguments.filter == "rising":
@@ -49,13 +49,29 @@ if __name__ == "__main__":
         grabCount = 0
 
         for post in submissions:
-            # if the post is not a link, PRAW will return the link to the text post
-            if ((re.match(arguments.titleRegex, post.title) != False) and (re.match(arguments.linkRegex, post.url) != False)):
+            
+            # wait between requests
+            time.sleep(0.1)
+
+            # pre-fetching submission attributes
+            postTitle = post.title
+            postURL = post.url
+
+            titleRegexMatchObject = re.match(arguments.titleRegex, postTitle)
+
+            # setting defaults for match flag
+            titleRegexMatch = False
+
+            if titleRegexMatchObject != None:
+                if titleRegexMatchObject.span() == (0, len(titleRegexMatchObject.string)):
+                    titleRegexMatch = True
+
+            if titleRegexMatch == True:
                 # increment grabCount for every correct regex title match
                 grabCount += 1
 
                 if arguments.verboseFlag == True:
-                    print(str(grabCount)+": "+post.title+" - match!")
+                    print("match #"+str(grabCount)+": "+post.title)
 
                 if arguments.imgurResolve == True:
                     outputFile.write(imgur.extractImageURL(post.url)+"\n")

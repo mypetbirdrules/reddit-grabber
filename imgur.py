@@ -4,7 +4,14 @@ import re
 import requests
 
 def galleryToImage(galleryURL):
-    if re.match(".*imgur\.com\/gallery\/[a-zA-Z]+/?", galleryURL) != False:
+    urlRegexMatch = False
+    urlRegexMatchObject = re.match(".*imgur.com\/gallery\/[a-zA-Z0-9]+/?", galleryURL)
+
+    if urlRegexMatchObject != None:
+        if urlRegexMatchObject.span() == (0, len(urlRegexMatchObject.string)):
+            urlRegexMatch = True
+
+    if urlRegexMatch == True:
         return galleryURL.replace("/gallery/", "/")
     else:
         return galleryURL
@@ -19,8 +26,15 @@ def cleanURL(imgurURL):
 def extractImageURL(imgurURL):
 
     imgurURL = galleryToImage(imgurURL)
+    
+    urlRegexMatch = False
+    urlRegexMatchObject = re.match(".*imgur\.com\/[a-zA-Z0-9]+/?", imgurURL)
 
-    if re.match(".*imgur\.com\/[a-zA-Z]+/?", imgurURL) != False:
+    if urlRegexMatchObject != None:
+        if urlRegexMatchObject.span() == (0, len(urlRegexMatchObject.string)):
+            urlRegexMatch = True
+
+    if urlRegexMatch == True:
         # make a get request at imgur.com/xxxx.jpg
         # read Content-Type from http headers to determine file type
         getRequest = requests.get(cleanURL(imgurURL) + ".jpg")
