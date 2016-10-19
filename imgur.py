@@ -35,14 +35,14 @@ def extractImageURL(imgurURL):
             urlRegexMatch = True
 
     if urlRegexMatch == True:
-        # make a get request at imgur.com/xxxx.jpg
-        # read Content-Type from http headers to determine file type
-        getRequest = requests.get(cleanURL(imgurURL) + ".jpg")
+        # make a HEAD request at imgur.com/xxxx.jpg
+        # read Content-Type from HTTP headers to determine file type
+        HTTPHeadRequest = requests.head(cleanURL(imgurURL) + ".jpg")
 
-        if getRequest.status_code == 200:
+        if HTTPHeadRequest.status_code == 200:
             # webpage exists
             # assigning file extension to URL
-            responseHeader = getRequest.headers["Content-Type"]
+            responseHeader = HTTPHeadRequest.headers["Content-Type"]
 
             if responseHeader == "image/jpeg":
                 return imgurURL + ".jpg"
@@ -59,6 +59,9 @@ def extractImageURL(imgurURL):
             # horrible errors
             # unsupported features (Imgur albums/galleries)
             return imgurURL
+
+        # close HTTP connection object
+        HTTPHeadRequest.close()
 
     else:
 
